@@ -1,16 +1,44 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Sheet, Group, Decisions } from './types';
 import { analyseSheets } from './lib/matching';
 import ImportScreen from './screens/ImportScreen';
 import CompareScreen from './screens/CompareScreen';
 import ReviewScreen from './screens/ReviewScreen';
 import ExportScreen from './screens/ExportScreen';
+import LandingPage from './screens/LandingPage';
+import TermsPage from './screens/TermsPage';
+import PrivacyPage from './screens/PrivacyPage';
 
 type Stage = 1 | 2 | 3 | 4;
+type Page = 'landing' | 'merge' | 'terms' | 'privacy';
 
 const STAGE_LABELS = ['Import sheets', 'Compare', 'Review conflicts', 'Export'];
 
+function useHashRoute(): [Page, (p: Page) => void] {
+  const getPage = (): Page => {
+    const hash = window.location.hash.replace('#/', '').replace('#', '');
+    if (hash === 'merge') return 'merge';
+    if (hash === 'terms') return 'terms';
+    if (hash === 'privacy') return 'privacy';
+    return 'landing';
+  };
+  const [page, setPageState] = useState<Page>(getPage);
+
+  useEffect(() => {
+    const onHash = () => setPageState(getPage());
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  const setPage = (p: Page) => {
+    window.location.hash = p === 'landing' ? '/' : `/${p}`;
+  };
+
+  return [page, setPage];
+}
+
 export default function App() {
+  const [page, setPage] = useHashRoute();
   const [stage, setStage] = useState<Stage>(1);
   const [workflow, setWorkflow] = useState('new-show');
   const [tolerance, setTolerance] = useState(2);
@@ -65,11 +93,15 @@ export default function App() {
     setStage(n);
   }
 
+  if (page === 'landing') return <LandingPage onLaunch={() => setPage('merge')} />;
+  if (page === 'terms') return <TermsPage />;
+  if (page === 'privacy') return <PrivacyPage />;
+
   return (
     <>
       {/* HEADER */}
       <div className="header">
-        <span className="wordmark">
+        <span className="wordmark" style={{ cursor: 'pointer' }} onClick={() => setPage('landing')}>
           Cue<em>track</em>
         </span>
         <div className="header-divider" />
