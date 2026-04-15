@@ -1,8 +1,4 @@
-interface LandingPageProps {
-  onLaunch: () => void;
-}
-
-export default function LandingPage({ onLaunch }: LandingPageProps) {
+export default function LandingPage() {
   return (
     <div className="landing">
       {/* NAV */}
@@ -11,7 +7,7 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
         <div style={{ flex: 1 }} />
         <a href="#/terms" className="landing-nav-link">Terms</a>
         <a href="#/privacy" className="landing-nav-link">Privacy</a>
-        <button className="btn btn-primary btn-sm" onClick={onLaunch}>Open App</button>
+        <a className="btn btn-primary btn-sm" href="https://app.cuetrack.com">Open App</a>
       </nav>
 
       {/* HERO */}
@@ -29,9 +25,9 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
             — all without leaving your browser.
           </p>
           <div className="landing-cta-row">
-            <button className="btn btn-primary" onClick={onLaunch} style={{ padding: '12px 32px', fontSize: 14 }}>
+            <a className="btn btn-primary" href="https://app.cuetrack.com" style={{ padding: '12px 32px', fontSize: 14, textDecoration: 'none' }}>
               Launch Sheet Merge →
-            </button>
+            </a>
           </div>
         </div>
       </section>
@@ -154,9 +150,9 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
         <p className="landing-subtitle" style={{ maxWidth: 500, margin: '0 auto 24px' }}>
           No sign-up. No install. Just open the tool and drop in your CSVs.
         </p>
-        <button className="btn btn-primary" onClick={onLaunch} style={{ padding: '12px 32px', fontSize: 14 }}>
+        <a className="btn btn-primary" href="https://app.cuetrack.com" style={{ padding: '12px 32px', fontSize: 14, textDecoration: 'none' }}>
           Launch Sheet Merge →
-        </button>
+        </a>
       </section>
 
       {/* FOOTER */}
@@ -166,7 +162,7 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
           <div className="landing-footer-links">
             <a href="#/terms">Terms &amp; Conditions</a>
             <a href="#/privacy">Privacy Policy</a>
-            <a href="#/merge">Open App</a>
+            <a href="https://app.cuetrack.com">Open App</a>
           </div>
           <div className="landing-footer-copy">
             © {new Date().getFullYear()} cuetrack.com. All rights reserved.

@@ -14,8 +14,13 @@ type Page = 'landing' | 'merge' | 'terms' | 'privacy';
 
 const STAGE_LABELS = ['Import sheets', 'Compare', 'Review conflicts', 'Export'];
 
+const isAppSubdomain = window.location.hostname.startsWith('app.');
+const MAIN_SITE = 'https://cuetrack.com';
+const APP_SITE = 'https://app.cuetrack.com';
+
 function useHashRoute(): [Page, (p: Page) => void] {
   const getPage = (): Page => {
+    if (isAppSubdomain) return 'merge';
     const hash = window.location.hash.replace('#/', '').replace('#', '');
     if (hash === 'merge') return 'merge';
     if (hash === 'terms') return 'terms';
@@ -31,6 +36,14 @@ function useHashRoute(): [Page, (p: Page) => void] {
   }, []);
 
   const setPage = (p: Page) => {
+    if (p === 'merge' && !isAppSubdomain) {
+      window.location.href = APP_SITE;
+      return;
+    }
+    if (p === 'landing' && isAppSubdomain) {
+      window.location.href = MAIN_SITE;
+      return;
+    }
     window.location.hash = p === 'landing' ? '/' : `/${p}`;
   };
 
@@ -93,7 +106,7 @@ export default function App() {
     setStage(n);
   }
 
-  if (page === 'landing') return <LandingPage onLaunch={() => setPage('merge')} />;
+  if (page === 'landing') return <LandingPage />;
   if (page === 'terms') return <TermsPage />;
   if (page === 'privacy') return <PrivacyPage />;
 
@@ -101,9 +114,9 @@ export default function App() {
     <>
       {/* HEADER */}
       <div className="header">
-        <span className="wordmark" style={{ cursor: 'pointer' }} onClick={() => setPage('landing')}>
+        <a className="wordmark" href={isAppSubdomain ? MAIN_SITE : '#/'} style={{ cursor: 'pointer', textDecoration: 'none' }}>
           Cue<em>track</em>
-        </span>
+        </a>
         <div className="header-divider" />
         <span className="header-label">Sheet Merge</span>
         <div className="header-right">

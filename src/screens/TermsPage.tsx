@@ -6,7 +6,7 @@ export default function TermsPage() {
         <div style={{ flex: 1 }} />
         <a href="#/" className="landing-nav-link">Home</a>
         <a href="#/privacy" className="landing-nav-link">Privacy</a>
-        <a href="#/merge" className="landing-nav-link">Open App</a>
+        <a href="https://app.cuetrack.com" className="landing-nav-link">Open App</a>
       </nav>
 
       <div className="legal-body">
@@ -96,7 +96,7 @@ export default function TermsPage() {
           <div className="landing-footer-links">
             <a href="#/terms">Terms &amp; Conditions</a>
             <a href="#/privacy">Privacy Policy</a>
-            <a href="#/merge">Open App</a>
+            <a href="https://app.cuetrack.com">Open App</a>
           </div>
           <div className="landing-footer-copy">
             © {new Date().getFullYear()} cuetrack.com. All rights reserved.
