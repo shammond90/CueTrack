@@ -111,7 +111,7 @@ export default function LandingPage() {
           </div>
           <div className="landing-feature">
             <div className="landing-feature-icon">🆓</div>
-            <h3 className="landing-feature-title">Free forever</h3>
+            <h3 className="landing-feature-title">Free to use</h3>
             <p className="landing-feature-desc">
               No accounts, no subscriptions, no limits. CueTrack is a free tool for the production community.
             </p>
