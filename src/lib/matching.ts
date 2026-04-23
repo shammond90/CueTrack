@@ -34,25 +34,42 @@ export function analyseSheets(
 
   Object.entries(byType).forEach(([type, rows]) => {
     const sorted = rows.slice().sort((a, b) => a._ts - b._ts);
+
+    // Assign each row to a cluster. A cluster accepts a row if:
+    //   1. The row's timestamp is within `tolerance` of the cluster's anchor (first row's ts)
+    //   2. The cluster does not already contain a row from the same sheet
+    // We iterate in timestamp order and try to place each row in the earliest
+    // open cluster it fits. If none fit, a new cluster is opened.
+    // A cluster is "closed" (no longer eligible) once the current row's ts
+    // is beyond its anchor + tolerance.
+    const openClusters: RowWithMeta[][] = [];
     const clusters: RowWithMeta[][] = [];
-    let current: RowWithMeta[] = [];
 
     sorted.forEach((r) => {
-      if (current.length === 0) {
-        current = [r];
-        return;
+      // Close any clusters whose window has expired
+      let i = 0;
+      while (i < openClusters.length) {
+        if (r._ts - openClusters[i][0]._ts > tolerance) {
+          clusters.push(openClusters.splice(i, 1)[0]);
+        } else {
+          i++;
+        }
       }
-      const clusterStart = current[0]._ts;
-      const fitsWindow = r._ts - clusterStart <= tolerance;
-      const sameSheetConflict = current.some((c) => c._sheetIdx === r._sheetIdx);
-      if (fitsWindow && !sameSheetConflict) {
-        current.push(r);
+
+      // Find the earliest open cluster this row can join
+      const target = openClusters.find(
+        (c) => !c.some((cr) => cr._sheetIdx === r._sheetIdx),
+      );
+
+      if (target) {
+        target.push(r);
       } else {
-        clusters.push(current);
-        current = [r];
+        openClusters.push([r]);
       }
     });
-    if (current.length > 0) clusters.push(current);
+
+    // Flush remaining open clusters
+    openClusters.forEach((c) => clusters.push(c));
 
     clusters.forEach((cluster) => {
       const sheetsInCluster = [...new Set(cluster.map((r) => r._sheetIdx))];
