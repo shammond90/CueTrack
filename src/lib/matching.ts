@@ -1,7 +1,16 @@
 import { Group, RowWithMeta, Sheet } from '../types';
 import { median, SKIP_FIELDS } from './utils';
 
-export function analyseSheets(sheets: Sheet[], tolerance: number): Group[] {
+/**
+ * @param cueTypeFields Optional map of canonical CueType → field keys to compare.
+ *   When provided (JSON mode), only those fields are compared for each cue type.
+ *   When null/undefined (CSV mode), all non-skipped fields are compared as before.
+ */
+export function analyseSheets(
+  sheets: Sheet[],
+  tolerance: number,
+  cueTypeFields?: Record<string, string[]> | null,
+): Group[] {
   const allRows: RowWithMeta[] = [];
   sheets.forEach((sheet, si) => {
     sheet.rows.forEach((row) => {
@@ -54,7 +63,17 @@ export function analyseSheets(sheets: Sheet[], tolerance: number): Group[] {
 
       const conflictFields: Group['conflictFields'] = [];
       const allFieldNames = [...new Set(cluster.flatMap((r) => Object.keys(r)))];
-      const comparableFields = allFieldNames.filter((f) => !SKIP_FIELDS.has(f));
+
+      // In JSON mode, scope comparison to the fields defined for this cue type.
+      // In CSV mode (no cueTypeFields), compare all non-skipped fields.
+      const allowedFields =
+        cueTypeFields && cueTypeFields[type]
+          ? new Set(cueTypeFields[type])
+          : null;
+
+      const comparableFields = allFieldNames.filter(
+        (f) => !SKIP_FIELDS.has(f) && (allowedFields === null || allowedFields.has(f)),
+      );
 
       comparableFields.forEach((f) => {
         const vals = cluster.map((r) => (r[f] || '').trim()).filter((v) => v !== '');
