@@ -59,12 +59,23 @@ export function normalizeToSheet(
     if (srcKey !== undefined) fieldKeyMap.set(srcKey, res.canonicalKey);
   }
 
-  const rows: Record<string, string>[] = [];
-
+  // Collect all annotations across all sets, deduplicating by ID.
+  // A project exported after a video is attached often has two sets with the
+  // same annotations stored under different keys (project key + video key).
+  const seen = new Set<string>();
+  const allAnnotations: CuetationAnnotation[] = [];
   for (const annotationList of Object.values(project.annotations)) {
     for (const ann of annotationList as CuetationAnnotation[]) {
       if (ann.deleted) continue;
+      if (seen.has(ann.id)) continue;
+      seen.add(ann.id);
+      allAnnotations.push(ann);
+    }
+  }
 
+  const rows: Record<string, string>[] = [];
+
+  for (const ann of allAnnotations) {
       const ts = ann.timestamp ?? 0;
       const rawType = (ann.cue?.type ?? '').toUpperCase();
       const canonType = typeMap.get(rawType) ?? rawType;
@@ -95,7 +106,6 @@ export function normalizeToSheet(
       }
 
       rows.push(row);
-    }
   }
 
   return { filename, person, rows, color };
